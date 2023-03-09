@@ -4,13 +4,12 @@ file_lines = [int(char) for line in open(filename)
 network = []
 prev_layer = None
 
-for num in file_lines[::-1]:
+for num in file_lines:
     layer = []
     for i in range(num):
-        layer.insert(0, {"collector": 0.0,
+        layer.append({"collector": 0.0,
                          "connections": [] if prev_layer == None else prev_layer})
         
     prev_layer = layer
     network.append(layer)
 
-network = network[::-1]
