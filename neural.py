@@ -38,5 +38,6 @@ for i in range(1, len(struct_file_lines)):
         for node in network[i][j].connections:
             network[i][j].set_value(network[i][j].collector + node.collector)
 
-print(network[2][0].collector)
-    
+for i in range(len(network[-1])):
+    print(network[-1][i].collector)
+
