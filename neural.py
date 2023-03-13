@@ -17,8 +17,6 @@ for num in struct_file_lines:
     for i in range(num):
         connections = [] if prev_layer == None else prev_layer
         layer.append(Node(connections))
-        #layer.append({"collector": 0.0,
-        #                 "connections": [] if prev_layer == None else prev_layer})
         
     prev_layer = layer
     network.append(layer)
@@ -40,4 +38,3 @@ for i in range(1, len(struct_file_lines)):
 
 for i in range(len(network[-1])):
     print(network[-1][i].collector)
-
