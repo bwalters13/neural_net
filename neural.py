@@ -1,3 +1,6 @@
+import pickle
+import random
+
 struct_filename = "test.txt"
 number_input_file = "input.txt"
 struct_file_lines = [int(char) for line in open(struct_filename)
@@ -9,6 +12,10 @@ class Node:
     def __init__(self, connections):
         self.connections = connections
         self.collector = 0.0
+        self.weights = []*len(connections) if connections else []
+
+        for i in range(len(connections)):
+            self.weights.append(random.random())
     def set_value(self, value):
         self.collector = value
 
@@ -21,8 +28,6 @@ for num in struct_file_lines:
     prev_layer = layer
     network.append(layer)
 
-
-#print(network[1][0].connections)
 number_inputs = [float(char) for line in open(number_input_file)
               for char in line.strip().split(",")]
 
@@ -33,8 +38,12 @@ for i, val in enumerate(number_inputs):
 
 for i in range(1, len(struct_file_lines)):
     for j in range(len(network[i])):
-        for node in network[i][j].connections:
-            network[i][j].set_value(network[i][j].collector + node.collector)
+        for node, weight in zip (network[i][j].connections, network[i][j].weights):
+            network[i][j].set_value(network[i][j].collector + weight * node.collector)
 
 for i in range(len(network[-1])):
     print(network[-1][i].collector)
+
+with open('network.pkl', 'wb') as f:
+    pickle.dump(network, f)
+    
