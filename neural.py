@@ -17,7 +17,7 @@ def sigmoid(x):
     return 1/(1+math.exp(-x))
 
 def sigmoid_derivative(x):
-    return x - (1.0 - x)
+    return x * (1.0 - x)
 
 def backpropagate(network, expected_vals):
     for i in range(len(network)-1, -1, -1):
@@ -83,7 +83,7 @@ number_inputs = data.drop('answer', axis=1).values
 
 
 # set inputs
-for _ in range(100):
+for _ in range(40):
     error = 0
     for row, expected_val in zip(number_inputs, expected_answers):
         for i, val in enumerate(row):
@@ -99,7 +99,7 @@ for _ in range(100):
                     network[i][j].set_value(sigmoid(network[i][j].collector))
         error += (network[-1][0].collector - expected_val)**2
         backpropagate(network, [expected_val])
-        update_weights(network, row, .1)
+        update_weights(network, row, .5)
     print(f"the error is {error}")
 
 # dump that ish
