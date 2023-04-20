@@ -4,7 +4,6 @@ import math
 import numpy as np
 import pandas as pd
 
-
 # files to get structure and inputs
 struct_filename = "test.txt"
 number_input_file = "input.txt"
@@ -17,6 +16,38 @@ prev_layer = None
 def sigmoid(x):
     return 1/(1+math.exp(-x))
 
+def sigmoid_derivative(x):
+    return x - (1.0 - x)
+
+def backpropagate(network, expected_vals):
+    for i in range(len(network)-1, -1, -1):
+        current_layer = network[i]
+        errors = []
+        if i != len(network) - 1:
+            for j in range(len(current_layer)):
+                error = 0.
+                for node in network[i + 1]:
+                    error += (node.weights[j] * node.delta)
+                errors.append(error)
+        else:
+            for j in range(len(current_layer)):
+                node = current_layer[j]
+                errors.append(node.collector - expected_vals[j])
+
+        for j in range(len(current_layer)):
+            node = current_layer[j]
+            node.delta = errors[j] * sigmoid_derivative(node.collector)
+
+def update_weights(network, inputs, lr):
+    for i in range(1, len(network)):
+        if i != 0:
+            inputs = [node.collector for node in network[i-1]]
+        for node in network[i]:
+            for j in range(len(inputs)):
+                node.weights[j] -= lr * node.delta * inputs[j]
+            node.weights[-1] -= lr * node.delta
+                    
+
 
 # class to store node attributes
 class Node:
@@ -25,6 +56,7 @@ class Node:
         self.collector = 0.0
         self.weights = [random() for x in
                         range(len(connections))] if connections else []
+        self.delta = 0.0
 
     def set_value(self, value):
         self.collector = value
@@ -51,23 +83,24 @@ number_inputs = data.drop('answer', axis=1).values
 
 
 # set inputs
-for row, expected_val in zip(number_inputs, expected_answers):
-    for i, val in enumerate(row):
-        network[0][i].set_value(val)
+for _ in range(100):
+    error = 0
+    for row, expected_val in zip(number_inputs, expected_answers):
+        for i, val in enumerate(row):
+            network[0][i].set_value(val)
 
-    # adding!!!
-    for i in range(1, len(struct_file_lines)):
-        for j in range(len(network[i])):
-            for node, weight in zip(network[i][j].connections,
-                                    network[i][j].weights):
-                network[i][j].set_value(network[i][j].collector
+            # adding!!!
+            for i in range(1, len(struct_file_lines)):
+                for j in range(len(network[i])):
+                    for node, weight in zip(network[i][j].connections,
+                                            network[i][j].weights):
+                        network[i][j].set_value(network[i][j].collector
                                         + weight * node.collector)
-            network[i][j].set_value(sigmoid(network[i][j].collector))
-    # we did it??
-    for i in range(len(network[-1])):
-        print(network[-1][i].collector)
-    error = expected_val - network[-1][i].collector
-    print(f"The error is {error}")
+                    network[i][j].set_value(sigmoid(network[i][j].collector))
+        error += (network[-1][0].collector - expected_val)**2
+        backpropagate(network, [expected_val])
+        update_weights(network, row, .1)
+    print(f"the error is {error}")
 
 # dump that ish
 with open('network.pkl', 'wb') as f:
