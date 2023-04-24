@@ -4,7 +4,7 @@ import math
 import numpy as np
 import pandas as pd
 
-n_epochs = 10000
+
 
 # files to get structure and inputs
 struct_filename = "test.txt"
@@ -36,8 +36,8 @@ def backpropagate(network, expected_vals):
                 error = 2*(node.collector - expected_vals[j])
                 node.delta = error * sigmoid_derivative(node.collector)
 
- 
-       
+
+
 def update_weights(network, inputs, lr):
     for i in range(1, len(network)):
         if i != 1:
@@ -46,7 +46,7 @@ def update_weights(network, inputs, lr):
             for j in range(len(inputs)):
                 node.weights[j] -= lr * node.delta * inputs[j]
             #node.weights[-1] -= lr * node.delta
-                    
+
 
 
 # class to store node attributes
@@ -81,7 +81,7 @@ expected_answers = data.answer.values
 number_inputs = data.drop('answer', axis=1).values
 
 # set inputs
-def train_network(network, learning_rate, target_error):
+def train_network(network, learning_rate, target_error, n_epochs):
     for epoch in range(n_epochs):
         sum_error = 0
         for row, expected_val in zip(number_inputs, expected_answers):
@@ -98,13 +98,13 @@ def train_network(network, learning_rate, target_error):
             sum_error += (network[-1][0].collector - expected_val)**2
             backpropagate(network, [expected_val])
             update_weights(network, row, learning_rate)
-        
-    
-        print(f"the mean error is {sum_error}")
+
+
+        print(f"the sum error is {sum_error}")
         if sum_error < target_error:
             print(f"Threshold reached in {epoch} epochs")
             break
-train_network(network, 0.2, 0.05)
+train_network(network, 0.2, 0.05, 10_000)
 # dump that ish
 with open('network.pkl', 'wb') as f:
     pickle.dump(network, f)
