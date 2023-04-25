@@ -1,10 +1,9 @@
+import matplotlib.pyplot as plt
 import pickle
 from random import random, uniform
 import math
 import numpy as np
 import pandas as pd
-
-
 
 # files to get structure and inputs
 struct_filename = "test.txt"
@@ -18,8 +17,10 @@ prev_layer = None
 def sigmoid(x):
     return 1/(1+math.exp(-x))
 
+
 def sigmoid_derivative(x):
     return x * (1.0 - x)
+
 
 def backpropagate(network, expected_vals):
     for i in range(len(network)-1, -1, -1):
@@ -37,7 +38,6 @@ def backpropagate(network, expected_vals):
                 node.delta = error * sigmoid_derivative(node.collector)
 
 
-
 def update_weights(network, inputs, lr):
     for i in range(1, len(network)):
         if i != 1:
@@ -45,8 +45,6 @@ def update_weights(network, inputs, lr):
         for node in network[i]:
             for j in range(len(inputs)):
                 node.weights[j] -= lr * node.delta * inputs[j]
-            #node.weights[-1] -= lr * node.delta
-
 
 
 # class to store node attributes
@@ -80,6 +78,7 @@ data = pd.DataFrame(np.array(number_inputs).reshape(-1, len(network[0])+1),
 expected_answers = data.answer.values
 number_inputs = data.drop('answer', axis=1).values
 
+data = []
 # set inputs
 def train_network(network, learning_rate, target_error, n_epochs):
     for epoch in range(n_epochs):
@@ -98,13 +97,17 @@ def train_network(network, learning_rate, target_error, n_epochs):
             sum_error += (network[-1][0].collector - expected_val)**2
             backpropagate(network, [expected_val])
             update_weights(network, row, learning_rate)
-
-
-        print(f"the sum error is {sum_error}")
+        print(f"Epoch {epoch}: the sum error is {round(sum_error, 3)}, learning rate is {learning_rate}")
+        data.append([epoch, sum_error])
         if sum_error < target_error:
-            print(f"Threshold reached in {epoch} epochs")
+            print(f"Threshold reached in {epoch+1} epochs")
             break
-train_network(network, 0.2, 0.05, 10_000)
+
+
+
+train_network(network, 0.1, 0.05, 50_000)
+data = np.array(data)
+plt.scatter(data[:, 0], data[:, 1])
 # dump that ish
 with open('network.pkl', 'wb') as f:
     pickle.dump(network, f)
