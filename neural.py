@@ -92,6 +92,7 @@ def forward_feed(network, inputs, expected):
     row_error = (network[-1][0].collector - expected)**2
     return row_error
 
+
 # set inputs
 def train_network(network, learning_rate, target_error, n_epochs):
     for epoch in range(n_epochs):
@@ -100,7 +101,10 @@ def train_network(network, learning_rate, target_error, n_epochs):
             sum_error += forward_feed(network, row, expected_val)
             backpropagate(network, [expected_val])
             update_weights(network, row, learning_rate)
-        print(f"Epoch {epoch}: the sum error is {round(sum_error, 3)},learning rate is {learning_rate}")
+        print(f"Epoch {epoch}")
+        print(f"Sum Error: {round(sum_error, 3)}")
+        print(f"Learning Rate: {learning_rate}")
+        print("------------------------------\n")
         if sum_error < target_error:
             print(f"Threshold reached in {epoch+1} epochs")
             break
