@@ -3,6 +3,10 @@ from random import random, uniform
 import math
 import numpy as np
 import pandas as pd
+import sqlite3
+
+conn = sqlite3.connect('hw.db')
+cursor = conn.cursor()
 
 # files to get structure and inputs
 struct_filename = "test.txt"
@@ -68,27 +72,34 @@ for num in struct_file_lines:
     prev_layer = layer
     network.append(layer)
 
-number_inputs = [float(char) for line in open(number_input_file)
-                 for char in line.strip().split(",")]
+print(f"Network Structure: {struct_file_lines}")
+# number_inputs = [float(char) for line in open(number_input_file)
+#                  for char in line.strip().split(",")]
 
-data = pd.DataFrame(np.array(number_inputs).reshape(-1, len(network[0])+1),
-                    columns=[*range(4), 'answer'])
+# data = pd.DataFrame(np.array(number_inputs).reshape(-1, len(network[0])+1),
+#                     columns=[*range(4), 'answer'])
 
-expected_answers = data.answer.values
-number_inputs = data.drop('answer', axis=1).values
+# expected_answers = data.answer.values
+# number_inputs = data.drop('answer', axis=1).values
+
+cursor.execute("select * from a_train order by random() limit 1000;")
+training_data = np.array(cursor.fetchall())
+number_inputs = training_data[:, :-1]
+expected_answers = training_data[:, -1]
+conn.close()
 
 
 def forward_feed(network, inputs, expected):
     for i, val in enumerate(inputs):
         network[0][i].set_value(val)
         # adding!!!
-        for i in range(1, len(struct_file_lines)):
-            for j in range(len(network[i])):
-                for node, weight in zip(network[i][j].connections,
-                                        network[i][j].weights):
-                    network[i][j].set_value(network[i][j].collector
-                                            + weight * node.collector)
-                network[i][j].set_value(sigmoid(network[i][j].collector))
+    for i in range(1, len(struct_file_lines)):
+        for j in range(len(network[i])):
+            for node, weight in zip(network[i][j].connections,
+                                    network[i][j].weights):
+                network[i][j].set_value(network[i][j].collector
+                            + weight * node.collector)
+            network[i][j].set_value(sigmoid(network[i][j].collector))
     row_error = (network[-1][0].collector - expected)**2
     return row_error
 
