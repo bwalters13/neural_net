@@ -103,6 +103,30 @@ def forward_feed(network, inputs, expected):
     row_error = (network[-1][0].collector - expected)**2
     return row_error
 
+def training_accuracy(network, inputs, expected):
+    for i, val in enumerate(inputs):
+        network[0][i].set_value(val)
+        # adding!!!
+    for i in range(1, len(struct_file_lines)):
+        for j in range(len(network[i])):
+            for node, weight in zip(network[i][j].connections,
+                                    network[i][j].weights):
+                network[i][j].set_value(network[i][j].collector
+                            + weight * node.collector)
+            network[i][j].set_value(sigmoid(network[i][j].collector))
+    if expected == 1:
+        if network[-1][0].collector >= 0.5:
+            correct = True
+        else:
+            correct = False
+    else:
+        if network[-1][0].collector < 0.5:
+            correct = True
+        else:
+            correct = False
+    return correct
+
+
 
 # set inputs
 def train_network(network, learning_rate, target_error, n_epochs):
@@ -121,7 +145,15 @@ def train_network(network, learning_rate, target_error, n_epochs):
             break
 
 
-train_network(network, 0.15, 0.05, 50000)
+
+
+train_network(network, 0.15, 0.05, 5000)
+
+vals = []
+for row, answer in zip(number_inputs, expected_answers):
+    vals.append(training_accuracy(network, row, answer))
+
+print(f"Training accuracy: {sum(vals)/len(expected_answers)}")
 
 # dump that ish
 with open('network.pkl', 'wb') as f:
