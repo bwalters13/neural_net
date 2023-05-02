@@ -85,9 +85,9 @@ print(f"Network Structure: {struct_file_lines} \n")
 # expected_answers = data.answer.values
 # number_inputs = data.drop('answer', axis=1).values
 
-cursor.execute(f"select * from {train_letter.lower()}_train where letter = 1 limit 20;")
+cursor.execute(f"select * from {train_letter.lower()}_train where letter = 1 limit 200;")
 all_as = np.array(cursor.fetchall())
-cursor.execute(f"select * from {train_letter.lower()}_train where letter = 0 limit 80;")
+cursor.execute(f"select * from {train_letter.lower()}_train where letter = 0 limit 800;")
 not_as = np.array(cursor.fetchall())
 
 training_data = np.append(all_as, not_as, axis=0)
