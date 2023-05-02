@@ -16,7 +16,7 @@ struct_file_lines = [int(char) for line in open(struct_filename)
 network = []
 prev_layer = None
 
-train_letter = input('what letter do you want to train on? a-e')
+train_letter = input('what letter do you want to train on? a-e ')
 print(train_letter)
 
 
@@ -75,7 +75,7 @@ for num in struct_file_lines:
     prev_layer = layer
     network.append(layer)
 
-print(f"Network Structure: {struct_file_lines}")
+print(f"Network Structure: {struct_file_lines} \n")
 # number_inputs = [float(char) for line in open(number_input_file)
 #                  for char in line.strip().split(",")]
 
