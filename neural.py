@@ -16,6 +16,9 @@ struct_file_lines = [int(char) for line in open(struct_filename)
 network = []
 prev_layer = None
 
+train_letter = input('what letter do you want to train on? a-e')
+print(train_letter)
+
 
 def sigmoid(x):
     return 1/(1+math.exp(-x))
@@ -82,8 +85,14 @@ print(f"Network Structure: {struct_file_lines}")
 # expected_answers = data.answer.values
 # number_inputs = data.drop('answer', axis=1).values
 
-cursor.execute("select * from a_train order by random() limit 1000;")
-training_data = np.array(cursor.fetchall())
+cursor.execute(f"select * from {train_letter.lower()}_train where letter = 1 limit 20;")
+all_as = np.array(cursor.fetchall())
+cursor.execute(f"select * from {train_letter.lower()}_train where letter = 0 limit 80;")
+not_as = np.array(cursor.fetchall())
+
+training_data = np.append(all_as, not_as, axis=0)
+np.random.shuffle(training_data)
+
 number_inputs = training_data[:, :-1]
 expected_answers = training_data[:, -1]
 conn.close()
